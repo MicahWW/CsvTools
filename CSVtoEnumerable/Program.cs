@@ -106,14 +106,6 @@ namespace CSVtoEnumerable
                 Console.WriteLine();
             }
 
-
-            //string[] file = File.ReadAllLines("test.csv");
-            ////string pass = "\"abcd\"\"123\", \"fd,ds         \",fdk516";
-            //string pass = file[0];
-            //int pos;
-            //string result = CsvToEnumerable.ReadStringLiteral(pass, out pos);
-            //Console.WriteLine($"|{result}|\t{pos}\t{pass[pos]}");
-
         }
     }
 }
