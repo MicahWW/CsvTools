@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CSVtoEnumerable": {
+      "commandName": "Project",
+      "workingDirectory": "C:\\Users\\Micah\\Documents\\Dev stuff\\Convert CSV"
+    }
+  }
+}
