@@ -5,8 +5,11 @@ namespace CSVtoEnumerable
 {
     public static class CsvToEnumerable
     {
-        // takes the given file path and creates a 2D string array with the CSV divided up
-        public static string[][] ToStringArr(string path, out int err)
+        /* Takes the given file path and creates a 2D string array
+         * If string[x][y] the x array represents the rows, the y array represents the columns
+         * path is the file path to the CSV and err will return -1 on error and 0 on success
+         */
+        public static string[][] CsvFileToStringArray(string path, out int err)
         {
             string[] fileText;
             try
@@ -20,23 +23,33 @@ namespace CSVtoEnumerable
                 return new string[0][];
             }
 
-            string[][] result = new string[fileText.Length][];
+            return CsvStringToStringArray(fileText, out err);
+            
+        }
 
-            // reading the file
-            for(int i = 0; i < fileText.Length; i++)
+        /* Takes a string[] where each index represents a newline and returns a 2D array
+         * If string[x][y] the x array represents the rows, the y array represents the columns
+         * data is the CSV data and err will return -1 on error and 0 on success
+         */
+        public static string[][] CsvStringToStringArray(string[] data, out int err)
+        {
+            string[][] result = new string[data.Length][];
+
+            // reading the file line by line
+            for (int i = 0; i < data.Length; i++)
             {
                 // used to hold the current row, each comma seprated value is it's own List item
                 List<string> line = new List<string>();
                 line.Add("");
 
                 // moving through line
-                for (int j = 0; j < fileText[i].Length; j++)
+                for (int j = 0; j < data[i].Length; j++)
                 {
                     // a "
-                    if (fileText[i][j] == '\u0022')
+                    if (data[i][j] == '\u0022')
                     {
                         int endPos;
-                        string literal = ReadStringLiteral(fileText[i].Substring(j), out endPos);
+                        string literal = ReadStringLiteral(data[i].Substring(j), out endPos);
                         // reached the end of the line without a closing double quote
                         if (endPos == -1)
                             Environment.Exit(-1);
@@ -47,21 +60,22 @@ namespace CSVtoEnumerable
                             line.Add("");
                             j += endPos;
                             // this will ignore any characters inbetween the closing double quote and the next comma
-                            j += fileText[i].Substring(j).IndexOf('\u002C');
+                            j += data[i].Substring(j).IndexOf('\u002C');
                         }
                     }
                     // a ,
-                    else if (fileText[i][j] == '\u002C')
+                    else if (data[i][j] == '\u002C')
                         // the end of the column was found, start a new column
                         line.Add("");
                     else
-                        line[line.Count - 1] += fileText[i][j];
+                        line[line.Count - 1] += data[i][j];
                 }
                 result[i] = line.ToArray();
             }
             err = 0;
             return result;
         }
+
 
         /* finds the part of the passed string (str) that is encapsulated by double quotes (\u0022)
          * to escape a double quote it must be preceded by a double quote
@@ -95,10 +109,51 @@ namespace CSVtoEnumerable
                 }
                 result += str[pos];
             }
-
             // no encapsulated string found
             endOfLiteral = -1;
             return "";
+        }
+
+        // Overloads function that has a leadingString argument, assumes that leadingString is empty
+         
+        public static string StringArrayToCsvString(string[][] data)
+        {
+            return StringArrayToCsvString(data, "");
+        }
+
+        /* Takes a 2d array and creates a single string where each cell is delimited by a comma
+         * If string[x][y] the x array represents the rows, the y array represents the columns
+         * leadingString is used if something is wanted to be added to the front of every cell (like spaces)
+         */
+        public static string StringArrayToCsvString(string[][] data, string leadingString)
+        {
+            string result = "";
+
+            foreach (string[] line in data)
+                for (int i = 0; i < line.Length; i++)
+                {
+                    if (i > 0)
+                        result += ",";
+
+                    // a "
+                    if (line[i].Contains('\u0022'))
+                    {
+                        // add double quote at the begining and end and escape all double quotes
+                        result += '\u0022';
+                        line[i] = line[i].Replace("\u0022", "\u0022\u0022");
+                        line[i] += '\u0022';
+                    }
+                    // a ,
+                    else if (line[i].Contains('\u002C'))
+                    {
+                        // add double quote at the begining and end
+                        result += '\u0022';
+                        line[i] += '\u0022';
+                    }
+
+                    result = result + leadingString + line[i];
+                }
+            return result;
         }
     }
 
@@ -109,16 +164,14 @@ namespace CSVtoEnumerable
         {
             Console.WriteLine("Hello World");
             int err;
-            string[][] file = CsvToEnumerable.ToStringArr("test.csv", out err);
-
-            foreach (string[] line in file)
+            string[][] file = CsvToEnumerable.CsvFileToStringArray("test.csv", out err);
+            if (err == -1)
             {
-                foreach (string s in line)
-                {
-                    Console.Write("|" + s + "|" + "\t ");
-                }
-                Console.WriteLine();
+                Console.WriteLine("had an error");
+                Environment.Exit(-1);
             }
+
+            Console.WriteLine(CsvToEnumerable.StringArrayToCsvString(file));
 
         }
     }
