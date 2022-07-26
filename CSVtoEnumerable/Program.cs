@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections;
 
-namespace CSVtoEnumerable
+namespace CsvTools
 {
-    public static class CsvToEnumerable
+    public static class CsvTools
     {
         /* Takes the given file path and creates a 2D string array
          * If string[x][y] the x array represents the rows, the y array represents the columns
@@ -164,14 +164,14 @@ namespace CSVtoEnumerable
         {
             Console.WriteLine("Hello World");
             int err;
-            string[][] file = CsvToEnumerable.CsvFileToStringArray("test.csv", out err);
+            string[][] file = CsvTools.CsvFileToStringArray("test.csv", out err);
             if (err == -1)
             {
                 Console.WriteLine("had an error");
                 Environment.Exit(-1);
             }
 
-            Console.WriteLine(CsvToEnumerable.StringArrayToCsvString(file));
+            Console.WriteLine(CsvTools.StringArrayToCsvString(file));
 
         }
     }
