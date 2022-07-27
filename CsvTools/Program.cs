@@ -5,6 +5,18 @@ namespace CsvTools
 {
     public static class CsvTools
     {
+        private static bool readLeadingWhiteSpace = true;
+
+        public static void IncludeLeadingWhiteSpace()
+        {
+            readLeadingWhiteSpace = true;
+        }
+
+        public static void ExcludeLeadingWhiteSpace()
+        {
+            readLeadingWhiteSpace = false;
+        }
+
         /* Takes the given file path and creates a 2D string array
          * If string[x][y] the x array represents the rows, the y array represents the columns
          * path is the file path to the CSV and err will return -1 on error and 0 on success
@@ -57,6 +69,8 @@ namespace CsvTools
                         else
                         {
                             line[line.Count - 1] += literal;
+                            if (!readLeadingWhiteSpace)
+                                line[line.Count - 1].TrimStart();
                             line.Add("");
                             j += endPos;
                             // this will ignore any characters inbetween the closing double quote and the next comma
@@ -65,11 +79,17 @@ namespace CsvTools
                     }
                     // a ,
                     else if (data[i][j] == '\u002C')
+                    {
                         // the end of the column was found, start a new column
+                        if (!readLeadingWhiteSpace)
+                            line[line.Count - 1] = line[line.Count - 1].TrimStart();
                         line.Add("");
+                    }
                     else
                         line[line.Count - 1] += data[i][j];
                 }
+                if (!readLeadingWhiteSpace)
+                    line[line.Count - 1] = line[line.Count - 1].TrimStart();
                 result[i] = line.ToArray();
             }
             err = 0;
